@@ -59,6 +59,22 @@ fn simple() {
 }
 
 #[cargo_test]
+fn select_pre_release() {
+    pkg("foo", "0.0.1-pre.0");
+
+    cargo_process("install foo")
+        .with_status(101)
+        .with_stderr_data(str![[r#"
+[UPDATING] `dummy-registry` index
+[ERROR] could not find `foo` in registry `crates-io` with version `*`
+
+"#]])
+        .run();
+
+    assert_has_not_installed_exe(paths::cargo_home(), "foo");
+}
+
+#[cargo_test]
 fn install_the_same_version_twice() {
     pkg("foo", "0.0.1");
 
